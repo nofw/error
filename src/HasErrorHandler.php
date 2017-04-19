@@ -18,8 +18,6 @@ trait HasErrorHandler
      * Sets an error handler instance.
      *
      * @param ErrorHandler $errorHandler
-     *
-     * @return void
      */
     public function setErrorHandler(ErrorHandler $errorHandler): void
     {

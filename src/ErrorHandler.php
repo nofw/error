@@ -20,8 +20,6 @@ interface ErrorHandler
      *
      * @param \Throwable $t
      * @param array      $context
-     *
-     * @return void
      */
     public function handle(\Throwable $t, array $context = []): void;
 }
