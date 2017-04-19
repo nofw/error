@@ -1,0 +1,28 @@
+{
+    "name": "nofw/error",
+    "description": "Common interface for error handlers",
+    "license": "MIT",
+    "keywords": ["error", "handler"],
+    "homepage": "https://nofw.io",
+    "authors": [
+        {
+            "name": "Márk Sági-Kazár",
+            "email": "mark.sagikazar@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nofw\\Error\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1-dev"
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
+}
