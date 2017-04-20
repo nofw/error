@@ -1,4 +1,12 @@
 # Change Log
 
 
-## Unreleased
+## 0.0.1 - 2017-04-20
+
+### Added
+
+- Error handler interface
+- Error handler aware interface
+- Error handler aware implementation
+- Dummy error handler implementation
+- Context interface for context key constants
