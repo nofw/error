@@ -1,6 +1,13 @@
 # Change Log
 
 
+## Unreleased
+
+### Added
+
+- Application and environment context keys
+
+
 ## 0.0.1 - 2017-04-20
 
 ### Added

@@ -17,6 +17,31 @@ interface Context
     public const SEVERITY = 'severity';
 
     /**
+     * Application context key.
+     *
+     * This is an array value holding information about application and it's environment.
+     *
+     * Some example keys:
+     *  - os
+     *  - hostname
+     *  - language (eg. PHP 7.1)
+     *  - version
+     *  - environment (eg. staging, production)
+     *  - url
+     *  - rootDirectory
+     *  - component
+     *  - action
+     */
+    public const APP = 'app';
+
+    /**
+     * User context key.
+     *
+     * This is an array value holding information about the current user (such as ID, username or email).
+     */
+    public const USER = 'user';
+
+    /**
      * Request context key.
      *
      * This is an array value holding information about the current request.
@@ -30,6 +55,13 @@ interface Context
      * This is an array value holding information about the current session.
      */
     public const SESSION = 'session';
+
+    /**
+     * Environment context key.
+     *
+     * This is an array value holding the environment variables.
+     */
+    public const ENVIRONMENT = 'environment';
 
     /**
      * Parameters context key.
