@@ -11,8 +11,6 @@ interface ErrorHandlerAware
 {
     /**
      * Sets an error handler instance.
-     *
-     * @param ErrorHandler $errorHandler
      */
     public function setErrorHandler(ErrorHandler $errorHandler): void;
 }

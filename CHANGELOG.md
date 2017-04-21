@@ -1,6 +1,13 @@
 # Change Log
 
 
+## Unreleased
+
+### Removed
+
+- Phpdoc (not really required since PHP 7)
+
+
 ## 0.0.2 - 2017-04-20
 
 ### Added
