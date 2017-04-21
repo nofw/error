@@ -17,9 +17,6 @@ interface ErrorHandler
      * The above parameters follow common sense and it SHOULD be possible to fit them into any workflow.
      *
      * @see Context
-     *
-     * @param \Throwable $t
-     * @param array      $context
      */
     public function handle(\Throwable $t, array $context = []): void;
 }
