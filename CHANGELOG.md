@@ -3,6 +3,10 @@
 
 ## Unreleased
 
+### Added
+
+- PSR-3 Log error handler
+
 ### Removed
 
 - Phpdoc (not really required since PHP 7)
