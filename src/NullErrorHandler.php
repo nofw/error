@@ -3,7 +3,7 @@
 namespace Nofw\Error;
 
 /**
- * This Handler can be used to avoid conditional calls.
+ * This handler can be used to avoid conditional calls.
  *
  * Error monitoring should always be optional, and if no handler is provided to your
  * library creating a NullHandler instance to have something to throw logs at
