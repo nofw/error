@@ -14,9 +14,6 @@ namespace Nofw\Error;
  */
 final class NullErrorHandler implements ErrorHandler
 {
-    /**
-     * {@inheritdoc}
-     */
     public function handle(\Throwable $t, array $context = []): void
     {
         // noop

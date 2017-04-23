@@ -10,6 +10,7 @@
 ### Removed
 
 - Phpdoc (not really required since PHP 7)
+- Inheritdoc
 
 
 ## 0.0.2 - 2017-04-20

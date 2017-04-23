@@ -50,9 +50,6 @@ final class Psr3ErrorHandler implements ErrorHandler
         $this->levelMap = array_replace($levelMap, self::DEFAULT_ERROR_LEVEL_MAP, $levelMap);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(\Throwable $t, array $context = []): void
     {
         $context[self::ERROR_KEY] = $t;
