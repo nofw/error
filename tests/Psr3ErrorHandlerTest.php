@@ -14,54 +14,38 @@ final class Psr3ErrorHandlerTest extends TestCase
     /**
      * @test
      */
-    public function it_logs_at_critical_level_and_attaches_the_error_to_the_context_by_default()
+    public function it_logs_at_error_level_and_attaches_the_error_to_the_context_by_default()
     {
         /** @var LoggerInterface|ObjectProphecy $logger */
         $logger = $this->prophesize(LoggerInterface::class);
 
-        $errorHandler = new Psr3ErrorHandler();
-        $errorHandler->setLogger($logger->reveal());
+        $errorHandler = new Psr3ErrorHandler($logger->reveal());
 
-        $exception = new \Exception();
+        $e = new \Exception();
 
-        $logger->log(LogLevel::CRITICAL, Argument::type('string'), ['throwable' => $exception])->shouldBeCalled();
+        $logger->log(LogLevel::ERROR, Argument::type('string'), [Psr3ErrorHandler::ERROR_KEY => $e])->shouldBeCalled();
 
-        $errorHandler->handle($exception);
+        $errorHandler->handle($e);
     }
 
     /**
      * @test
      */
-    public function it_accepts_a_log_level()
+    public function it_accepts_a_log_level_map()
     {
         /** @var LoggerInterface|ObjectProphecy $logger */
         $logger = $this->prophesize(LoggerInterface::class);
 
-        $errorHandler = new Psr3ErrorHandler(LogLevel::ERROR);
-        $errorHandler->setLogger($logger->reveal());
+        $levelMap = [
+            \Exception::class => LogLevel::CRITICAL,
+        ];
 
-        $exception = new \Exception();
+        $errorHandler = new Psr3ErrorHandler($logger->reveal(), $levelMap);
 
-        $logger->log(LogLevel::ERROR, Argument::type('string'), ['throwable' => $exception])->shouldBeCalled();
+        $e = new \Exception();
 
-        $errorHandler->handle($exception);
-    }
+        $logger->log(LogLevel::CRITICAL, Argument::type('string'), [Psr3ErrorHandler::ERROR_KEY => $e])->shouldBeCalled();
 
-    /**
-     * @test
-     */
-    public function it_allows_to_disable_attaching_the_error()
-    {
-        /** @var LoggerInterface|ObjectProphecy $logger */
-        $logger = $this->prophesize(LoggerInterface::class);
-
-        $errorHandler = new Psr3ErrorHandler(LogLevel::CRITICAL, false);
-        $errorHandler->setLogger($logger->reveal());
-
-        $exception = new \Exception();
-
-        $logger->log(LogLevel::CRITICAL, Argument::type('string'), [])->shouldBeCalled();
-
-        $errorHandler->handle($exception);
+        $errorHandler->handle($e);
     }
 }
