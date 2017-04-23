@@ -15,7 +15,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^6.1",
-        "psr/log": "^1.0"
+        "psr/log": "^1.0",
+        "gamez/psr-testlogger": "^1.0"
     },
     "autoload": {
         "psr-4": {

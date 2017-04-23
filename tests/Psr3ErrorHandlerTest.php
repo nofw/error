@@ -1,51 +1,111 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nofw\Error\Tests;
 
+use Gamez\Psr\Log\TestLoggerTrait;
 use Nofw\Error\Psr3ErrorHandler;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Prophecy\Prophecy\ObjectProphecy;
-use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 final class Psr3ErrorHandlerTest extends TestCase
 {
+    use TestLoggerTrait;
     /**
      * @test
      */
-    public function it_logs_at_error_level_and_attaches_the_error_to_the_context_by_default()
+    public function it_logs_at_error_level_by_default(): void
     {
-        /** @var LoggerInterface|ObjectProphecy $logger */
-        $logger = $this->prophesize(LoggerInterface::class);
+        $logger = $this->getTestLogger();
 
-        $errorHandler = new Psr3ErrorHandler($logger->reveal());
+        $errorHandler = new Psr3ErrorHandler($logger);
 
         $e = new \Exception();
 
-        $logger->log(LogLevel::ERROR, Argument::type('string'), [Psr3ErrorHandler::ERROR_KEY => $e])->shouldBeCalled();
-
         $errorHandler->handle($e);
+
+        $this->assertTrue($logger->hasRecord(LogLevel::ERROR));
     }
 
     /**
      * @test
      */
-    public function it_accepts_a_log_level_map()
+    public function it_accepts_a_log_level_map(): void
     {
-        /** @var LoggerInterface|ObjectProphecy $logger */
-        $logger = $this->prophesize(LoggerInterface::class);
+        $logger = $this->getTestLogger();
 
         $levelMap = [
             \Exception::class => LogLevel::CRITICAL,
         ];
 
-        $errorHandler = new Psr3ErrorHandler($logger->reveal(), $levelMap);
+        $errorHandler = new Psr3ErrorHandler($logger, $levelMap);
 
         $e = new \Exception();
 
-        $logger->log(LogLevel::CRITICAL, Argument::type('string'), [Psr3ErrorHandler::ERROR_KEY => $e])->shouldBeCalled();
+        $errorHandler->handle($e);
+
+        $this->assertTrue($logger->hasRecord(LogLevel::CRITICAL));
+    }
+
+    /**
+     * @test
+     * @dataProvider errorProvider
+     */
+    public function it_detects_the_error_type(\Throwable $e, string $type): void
+    {
+        $logger = $this->getTestLogger();
+
+        $errorHandler = new Psr3ErrorHandler($logger);
 
         $errorHandler->handle($e);
+
+        $this->assertTrue($logger->hasRecord($type));
+    }
+
+    /**
+     * @test
+     * @dataProvider errorProvider
+     */
+    public function it_follows_the_log_template(\Throwable $e, string $type): void
+    {
+        $logger = $this->getTestLogger();
+
+        $errorHandler = new Psr3ErrorHandler($logger);
+
+        $errorHandler->handle($e);
+
+        $this->assertTrue(
+            $logger->hasRecord(
+                sprintf(
+                    '%s \'%s\' with message \'%s\' in %s(%s)',
+                    $type,
+                    get_class($e),
+                    $e->getMessage(),
+                    $e->getFile(),
+                    $e->getLine()
+                )
+            )
+        );
+    }
+
+    public function errorProvider()
+    {
+        return [
+            [
+                new class('Message') extends \Exception {
+                    protected $file = 'file';
+                    protected $line = 1;
+                },
+                'Exception',
+            ],
+            [
+                new class('Message') extends \Error {
+                    protected $file = 'file';
+                    protected $line = 1;
+                },
+                'Error',
+            ],
+        ];
     }
 }
