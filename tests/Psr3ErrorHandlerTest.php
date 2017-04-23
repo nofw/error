@@ -52,7 +52,49 @@ final class Psr3ErrorHandlerTest extends TestCase
     /**
      * @test
      */
-    public function it_ignores_the_level_map_order_when_there_is_an_exact_match(): void
+    public function it_ignores_the_log_level_map_when_the_level_is_not_valid(): void
+    {
+        $logger = $this->getTestLogger();
+
+        $levelMap = [
+            \Throwable::class => 'invalid',
+        ];
+
+        $errorHandler = new Psr3ErrorHandler($logger, $levelMap);
+
+        $e = new \Exception();
+
+        $errorHandler->handle($e);
+
+        $this->assertTrue($logger->hasRecord(LogLevel::ERROR));
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_ignore_the_log_level_map_when_non_psr_levels_are_allowed(): void
+    {
+        $logger = $this->getTestLogger();
+        $logger->allowNonPsrLevels();
+
+        $levelMap = [
+            \Throwable::class => 'invalid',
+        ];
+
+        $errorHandler = new Psr3ErrorHandler($logger, $levelMap);
+        $errorHandler->allowNonPsrLevels();
+
+        $e = new \Exception();
+
+        $errorHandler->handle($e);
+
+        $this->assertTrue($logger->hasRecord('invalid'));
+    }
+
+    /**
+     * @test
+     */
+    public function it_ignores_the_log_level_map_order_when_there_is_an_exact_match(): void
     {
         $logger = $this->getTestLogger();
 
@@ -68,6 +110,48 @@ final class Psr3ErrorHandlerTest extends TestCase
         $errorHandler->handle($e);
 
         $this->assertTrue($logger->hasRecord(LogLevel::CRITICAL));
+    }
+
+    /**
+     * @test
+     */
+    public function it_ignores_the_exact_match_when_the_level_is_not_valid(): void
+    {
+        $logger = $this->getTestLogger();
+
+        $levelMap = [
+            \Exception::class => 'invalid',
+        ];
+
+        $errorHandler = new Psr3ErrorHandler($logger, $levelMap);
+
+        $e = new \Exception();
+
+        $errorHandler->handle($e);
+
+        $this->assertTrue($logger->hasRecord(LogLevel::ERROR));
+    }
+
+    /**
+     * @test
+     */
+    public function it_ignores_the_exact_match_when_non_psr_levels_are_allowed(): void
+    {
+        $logger = $this->getTestLogger();
+        $logger->allowNonPsrLevels();
+
+        $levelMap = [
+            \Exception::class => 'invalid',
+        ];
+
+        $errorHandler = new Psr3ErrorHandler($logger, $levelMap);
+        $errorHandler->allowNonPsrLevels();
+
+        $e = new \Exception();
+
+        $errorHandler->handle($e);
+
+        $this->assertTrue($logger->hasRecord('invalid'));
     }
 
     /**
@@ -89,7 +173,7 @@ final class Psr3ErrorHandlerTest extends TestCase
     /**
      * @test
      */
-    public function it_ignores_the_severity_when_not_valid_log_level(): void
+    public function it_ignores_the_severity_when_the_level_is_not_valid(): void
     {
         $logger = $this->getTestLogger();
 
@@ -100,6 +184,24 @@ final class Psr3ErrorHandlerTest extends TestCase
         $errorHandler->handle($e, [Context::SEVERITY => 'invalid']);
 
         $this->assertTrue($logger->hasRecord(LogLevel::ERROR));
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_ignore_the_severity_when_non_psr_levels_are_allowed(): void
+    {
+        $logger = $this->getTestLogger();
+        $logger->allowNonPsrLevels();
+
+        $errorHandler = new Psr3ErrorHandler($logger);
+        $errorHandler->allowNonPsrLevels();
+
+        $e = new \Exception();
+
+        $errorHandler->handle($e, [Context::SEVERITY => 'invalid']);
+
+        $this->assertTrue($logger->hasRecord('invalid'));
     }
 
     /**

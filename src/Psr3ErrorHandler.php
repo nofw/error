@@ -54,6 +54,15 @@ final class Psr3ErrorHandler implements ErrorHandler
      */
     private $ignoreSeverity = false;
 
+    /**
+     * Enables the handler to accept detecting non-PSR-3 log levels.
+     *
+     * Note: when detecting an invalid level the handler will silently fall back to the default.
+     *
+     * @var bool
+     */
+    private $allowNonPsrLevels = false;
+
     public function __construct(LoggerInterface $logger, array $levelMap = [])
     {
         $this->logger = $logger;
@@ -68,6 +77,14 @@ final class Psr3ErrorHandler implements ErrorHandler
     public function ignoreSeverity(bool $ignoreSeverity = true): void
     {
         $this->ignoreSeverity = $ignoreSeverity;
+    }
+
+    /**
+     * Enables the handler to accept detecting non-PSR-3 log levels.
+     */
+    public function allowNonPsrLevels(bool $allowNonPsrLevels = true): void
+    {
+        $this->allowNonPsrLevels = $allowNonPsrLevels;
     }
 
     public function handle(\Throwable $t, array $context = []): void
@@ -95,9 +112,10 @@ final class Psr3ErrorHandler implements ErrorHandler
     {
         // Check if the severity matches a PSR-3 log level
         if (
+            false === $this->ignoreSeverity &&
             isset($context[Context::SEVERITY]) &&
             is_string($context[Context::SEVERITY]) &&
-            $this->checkLevel($context[Context::SEVERITY])
+            $this->validateLevel($context[Context::SEVERITY])
         ) {
             return $context[Context::SEVERITY];
         }
@@ -105,13 +123,13 @@ final class Psr3ErrorHandler implements ErrorHandler
         // Find the log level based on the error in the level map (avoid looping through the whole array)
         // Note: this ignores the order defined in the map.
         $class = get_class($t);
-        if (isset($this->levelMap[$class])) {
+        if (isset($this->levelMap[$class]) && $this->validateLevel($this->levelMap[$class])) {
             return $this->levelMap[$class];
         }
 
         // Find the log level based on the error in the level map
         foreach ($this->levelMap as $className => $candidate) {
-            if ($t instanceof $className) {
+            if ($t instanceof $className && $this->validateLevel($candidate)) {
                 return $candidate;
             }
         }
@@ -126,6 +144,14 @@ final class Psr3ErrorHandler implements ErrorHandler
     private function checkLevel(string $level): bool
     {
         return defined(sprintf('%s::%s', LogLevel::class, strtoupper($level)));
+    }
+
+    /**
+     * Validates whether a log level exists (if non-PSR levels are not allowed).
+     */
+    private function validateLevel(string $level): bool
+    {
+        return $this->allowNonPsrLevels || $this->checkLevel($level);
     }
 
     /**
