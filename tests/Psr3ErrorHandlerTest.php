@@ -52,11 +52,11 @@ final class Psr3ErrorHandlerTest extends TestCase
             \Exception::class => LogLevel::CRITICAL,
         ];
 
-        $errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
+        $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
 
         $e = new \Exception();
 
-        $errorHandler->handle($e);
+        $this->errorHandler->handle($e);
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::CRITICAL));
     }
@@ -70,11 +70,11 @@ final class Psr3ErrorHandlerTest extends TestCase
             \Throwable::class => 'invalid',
         ];
 
-        $errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
+        $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
 
         $e = new \Exception();
 
-        $errorHandler->handle($e);
+        $this->errorHandler->handle($e);
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
     }
@@ -90,12 +90,12 @@ final class Psr3ErrorHandlerTest extends TestCase
             \Throwable::class => 'invalid',
         ];
 
-        $errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
-        $errorHandler->allowNonPsrLevels();
+        $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
+        $this->errorHandler->allowNonPsrLevels();
 
         $e = new \Exception();
 
-        $errorHandler->handle($e);
+        $this->errorHandler->handle($e);
 
         $this->assertTrue($this->logger->hasRecord('invalid'));
     }
@@ -110,11 +110,11 @@ final class Psr3ErrorHandlerTest extends TestCase
             \Exception::class => LogLevel::CRITICAL,
         ];
 
-        $errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
+        $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
 
         $e = new \Exception();
 
-        $errorHandler->handle($e);
+        $this->errorHandler->handle($e);
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::CRITICAL));
     }
@@ -128,11 +128,11 @@ final class Psr3ErrorHandlerTest extends TestCase
             \Exception::class => 'invalid',
         ];
 
-        $errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
+        $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
 
         $e = new \Exception();
 
-        $errorHandler->handle($e);
+        $this->errorHandler->handle($e);
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
     }
@@ -148,12 +148,12 @@ final class Psr3ErrorHandlerTest extends TestCase
             \Exception::class => 'invalid',
         ];
 
-        $errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
-        $errorHandler->allowNonPsrLevels();
+        $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
+        $this->errorHandler->allowNonPsrLevels();
 
         $e = new \Exception();
 
-        $errorHandler->handle($e);
+        $this->errorHandler->handle($e);
 
         $this->assertTrue($this->logger->hasRecord('invalid'));
     }
