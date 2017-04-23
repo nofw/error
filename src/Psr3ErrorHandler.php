@@ -23,6 +23,11 @@ final class Psr3ErrorHandler implements ErrorHandler
     ];
 
     /**
+     * The default log level.
+     */
+    private const DEFAULT_LOG_LEVEL = LogLevel::ERROR;
+
+    /**
      * The key under which the error should be passed to the log context.
      */
     public const ERROR_KEY = 'error';
@@ -55,7 +60,7 @@ final class Psr3ErrorHandler implements ErrorHandler
         $context[self::ERROR_KEY] = $t;
 
         $this->logger->log(
-            $this->getLevel($t),
+            $this->getLevel($t, $context),
             sprintf(
                 '%s \'%s\' with message \'%s\' in %s(%s)',
                 $this->getType($t),
@@ -71,17 +76,26 @@ final class Psr3ErrorHandler implements ErrorHandler
     /**
      * Determine the level for the error.
      */
-    private function getLevel(\Throwable $t): string
+    private function getLevel(\Throwable $t, array $context): string
     {
-        $level = LogLevel::ERROR;
+        // Check if the severity matches a PSR-3 log level
+        if (
+            isset($context[Context::SEVERITY]) &&
+            is_string($context[Context::SEVERITY]) &&
+            defined(sprintf('%s::%s', LogLevel::class, strtoupper($context[Context::SEVERITY])))
+        ) {
+            return $context[Context::SEVERITY];
+        }
+
+        // Find the log level based on the error in the level map
         foreach ($this->levelMap as $className => $candidate) {
             if ($t instanceof $className) {
-                $level = $candidate;
-                break;
+                return $candidate;
             }
         }
 
-        return $level;
+        // Return the default log level
+        return self::DEFAULT_LOG_LEVEL;
     }
 
     /**

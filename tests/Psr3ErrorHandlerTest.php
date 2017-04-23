@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nofw\Error\Tests;
 
 use Gamez\Psr\Log\TestLoggerTrait;
+use Nofw\Error\Context;
 use Nofw\Error\Psr3ErrorHandler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
@@ -46,6 +47,22 @@ final class Psr3ErrorHandlerTest extends TestCase
         $errorHandler->handle($e);
 
         $this->assertTrue($logger->hasRecord(LogLevel::CRITICAL));
+    }
+
+    /**
+     * @test
+     */
+    public function it_detects_the_log_level_based_on_severity(): void
+    {
+        $logger = $this->getTestLogger();
+
+        $errorHandler = new Psr3ErrorHandler($logger);
+
+        $e = new \Exception();
+
+        $errorHandler->handle($e, [Context::SEVERITY => LogLevel::WARNING]);
+
+        $this->assertTrue($logger->hasRecord(LogLevel::WARNING));
     }
 
     /**
