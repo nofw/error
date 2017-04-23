@@ -140,7 +140,7 @@ final class Psr3ErrorHandlerTest extends TestCase
     /**
      * @test
      */
-    public function it_ignores_the_exact_match_when_non_psr_levels_are_allowed(): void
+    public function it_does_not_ignore_the_exact_match_when_non_psr_levels_are_allowed(): void
     {
         $this->logger->allowNonPsrLevels();
 
