@@ -47,12 +47,27 @@ final class Psr3ErrorHandler implements ErrorHandler
      */
     private $levelMap = [];
 
+    /**
+     * Ignores the severity when detecting the log level.
+     *
+     * @var bool
+     */
+    private $ignoreSeverity = false;
+
     public function __construct(LoggerInterface $logger, array $levelMap = [])
     {
         $this->logger = $logger;
 
         // Keep user maintained order
         $this->levelMap = array_replace($levelMap, self::DEFAULT_ERROR_LEVEL_MAP, $levelMap);
+    }
+
+    /**
+     * Ignores the severity when detecting the log level.
+     */
+    public function ignoreSeverity(bool $ignoreSeverity = true): void
+    {
+        $this->ignoreSeverity = $ignoreSeverity;
     }
 
     public function handle(\Throwable $t, array $context = []): void
@@ -74,7 +89,7 @@ final class Psr3ErrorHandler implements ErrorHandler
     }
 
     /**
-     * Determine the level for the error.
+     * Determines the level for the error.
      */
     private function getLevel(\Throwable $t, array $context): string
     {
@@ -114,7 +129,7 @@ final class Psr3ErrorHandler implements ErrorHandler
     }
 
     /**
-     * Determine the error type.
+     * Determines the error type.
      */
     private function getType(\Throwable $t): string
     {

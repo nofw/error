@@ -104,6 +104,23 @@ final class Psr3ErrorHandlerTest extends TestCase
 
     /**
      * @test
+     */
+    public function it_ignores_the_severity(): void
+    {
+        $logger = $this->getTestLogger();
+
+        $errorHandler = new Psr3ErrorHandler($logger);
+        $errorHandler->ignoreSeverity();
+
+        $e = new \Exception();
+
+        $errorHandler->handle($e, [Context::SEVERITY => LogLevel::WARNING]);
+
+        $this->assertTrue($logger->hasRecord(LogLevel::ERROR));
+    }
+
+    /**
+     * @test
      * @dataProvider errorProvider
      */
     public function it_detects_the_error_type(\Throwable $e, string $type): void
