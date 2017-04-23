@@ -36,9 +36,7 @@ final class Psr3ErrorHandlerTest extends TestCase
      */
     public function it_logs_at_error_level_by_default(): void
     {
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e);
+        $this->errorHandler->handle($this->getException());
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
     }
@@ -54,9 +52,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
 
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e);
+        $this->errorHandler->handle($this->getException());
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::CRITICAL));
     }
@@ -72,9 +68,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
 
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e);
+        $this->errorHandler->handle($this->getException());
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
     }
@@ -93,9 +87,7 @@ final class Psr3ErrorHandlerTest extends TestCase
         $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
         $this->errorHandler->allowNonPsrLevels();
 
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e);
+        $this->errorHandler->handle($this->getException());
 
         $this->assertTrue($this->logger->hasRecord('invalid'));
     }
@@ -105,14 +97,14 @@ final class Psr3ErrorHandlerTest extends TestCase
      */
     public function it_ignores_the_log_level_map_order_when_there_is_an_exact_match(): void
     {
+        $e = $this->getException();
+
         $levelMap = [
             \Throwable::class => LogLevel::ERROR,
-            \Exception::class => LogLevel::CRITICAL,
+            get_class($e) => LogLevel::CRITICAL,
         ];
 
         $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
-
-        $e = new \Exception();
 
         $this->errorHandler->handle($e);
 
@@ -130,9 +122,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
 
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e);
+        $this->errorHandler->handle($this->getException());
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
     }
@@ -151,9 +141,7 @@ final class Psr3ErrorHandlerTest extends TestCase
         $this->errorHandler = new Psr3ErrorHandler($this->logger, $levelMap);
         $this->errorHandler->allowNonPsrLevels();
 
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e);
+        $this->errorHandler->handle($this->getException());
 
         $this->assertTrue($this->logger->hasRecord('invalid'));
     }
@@ -163,9 +151,12 @@ final class Psr3ErrorHandlerTest extends TestCase
      */
     public function it_detects_the_log_level_based_on_severity(): void
     {
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e, [Context::SEVERITY => LogLevel::WARNING]);
+        $this->errorHandler->handle(
+            $this->getException(),
+            [
+                Context::SEVERITY => LogLevel::WARNING,
+            ]
+        );
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::WARNING));
     }
@@ -175,9 +166,12 @@ final class Psr3ErrorHandlerTest extends TestCase
      */
     public function it_ignores_the_severity_when_the_level_is_not_valid(): void
     {
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e, [Context::SEVERITY => 'invalid']);
+        $this->errorHandler->handle(
+            $this->getException(),
+            [
+                Context::SEVERITY => 'invalid',
+            ]
+        );
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
     }
@@ -188,12 +182,14 @@ final class Psr3ErrorHandlerTest extends TestCase
     public function it_does_not_ignore_the_severity_when_non_psr_levels_are_allowed(): void
     {
         $this->logger->allowNonPsrLevels();
-
         $this->errorHandler->allowNonPsrLevels();
 
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e, [Context::SEVERITY => 'invalid']);
+        $this->errorHandler->handle(
+            $this->getException(),
+            [
+                Context::SEVERITY => 'invalid',
+            ]
+        );
 
         $this->assertTrue($this->logger->hasRecord('invalid'));
     }
@@ -205,9 +201,12 @@ final class Psr3ErrorHandlerTest extends TestCase
     {
         $this->errorHandler->ignoreSeverity();
 
-        $e = new \Exception();
-
-        $this->errorHandler->handle($e, [Context::SEVERITY => LogLevel::WARNING]);
+        $this->errorHandler->handle(
+            $this->getException(),
+            [
+                Context::SEVERITY => LogLevel::WARNING,
+            ]
+        );
 
         $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
     }
@@ -249,10 +248,7 @@ final class Psr3ErrorHandlerTest extends TestCase
     {
         return [
             [
-                new class('Message') extends \Exception {
-                    protected $file = 'file';
-                    protected $line = 1;
-                },
+                $this->getException(),
                 'Exception',
             ],
             [
@@ -263,5 +259,18 @@ final class Psr3ErrorHandlerTest extends TestCase
                 'Error',
             ],
         ];
+    }
+
+    /**
+     * Creates an exception with clean values.
+     *
+     * Note: this is necessary because this file has the string 'Error' in its name which leads to false positive checks.
+     */
+    private function getException(): \Exception
+    {
+        return new class('Message') extends \Exception {
+            protected $file = 'file';
+            protected $line = 1;
+        };
     }
 }
