@@ -82,7 +82,7 @@ final class Psr3ErrorHandler implements ErrorHandler
         if (
             isset($context[Context::SEVERITY]) &&
             is_string($context[Context::SEVERITY]) &&
-            defined(sprintf('%s::%s', LogLevel::class, strtoupper($context[Context::SEVERITY])))
+            $this->checkLevel($context[Context::SEVERITY])
         ) {
             return $context[Context::SEVERITY];
         }
@@ -103,6 +103,14 @@ final class Psr3ErrorHandler implements ErrorHandler
 
         // Return the default log level
         return self::DEFAULT_LOG_LEVEL;
+    }
+
+    /**
+     * Checks whether a log level exists.
+     */
+    private function checkLevel(string $level): bool
+    {
+        return defined(sprintf('%s::%s', LogLevel::class, strtoupper($level)));
     }
 
     /**
