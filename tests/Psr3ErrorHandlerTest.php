@@ -7,6 +7,7 @@ namespace Nofw\Error\Tests;
 use Gamez\Psr\Log\TestLogger;
 use Gamez\Psr\Log\TestLoggerTrait;
 use Nofw\Error\Context;
+use Nofw\Error\ErrorHandler;
 use Nofw\Error\Psr3ErrorHandler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
@@ -29,6 +30,14 @@ final class Psr3ErrorHandlerTest extends TestCase
     {
         $this->logger = $this->getTestLogger();
         $this->errorHandler = new Psr3ErrorHandler($this->logger);
+    }
+
+    /**
+     * @test
+     */
+    public function it_is_an_error_handler(): void
+    {
+        $this->assertInstanceOf(ErrorHandler::class, $this->errorHandler);
     }
 
     /**
