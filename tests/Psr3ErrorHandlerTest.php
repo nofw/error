@@ -38,7 +38,7 @@ final class Psr3ErrorHandlerTest extends TestCase
     {
         $this->errorHandler->handle($this->getException());
 
-        $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
+        $this->assertLoggerHasRecord(LogLevel::ERROR);
     }
 
     /**
@@ -54,7 +54,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler->handle($this->getException());
 
-        $this->assertTrue($this->logger->hasRecord(LogLevel::CRITICAL));
+        $this->assertLoggerHasRecord(LogLevel::CRITICAL);
     }
 
     /**
@@ -70,7 +70,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler->handle($this->getException());
 
-        $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
+        $this->assertLoggerHasRecord(LogLevel::ERROR);
     }
 
     /**
@@ -89,7 +89,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler->handle($this->getException());
 
-        $this->assertTrue($this->logger->hasRecord('invalid'));
+        $this->assertLoggerHasRecord('invalid');
     }
 
     /**
@@ -108,7 +108,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler->handle($e);
 
-        $this->assertTrue($this->logger->hasRecord(LogLevel::CRITICAL));
+        $this->assertLoggerHasRecord(LogLevel::CRITICAL);
     }
 
     /**
@@ -124,7 +124,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler->handle($this->getException());
 
-        $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
+        $this->assertLoggerHasRecord(LogLevel::ERROR);
     }
 
     /**
@@ -143,7 +143,7 @@ final class Psr3ErrorHandlerTest extends TestCase
 
         $this->errorHandler->handle($this->getException());
 
-        $this->assertTrue($this->logger->hasRecord('invalid'));
+        $this->assertLoggerHasRecord('invalid');
     }
 
     /**
@@ -158,7 +158,7 @@ final class Psr3ErrorHandlerTest extends TestCase
             ]
         );
 
-        $this->assertTrue($this->logger->hasRecord(LogLevel::WARNING));
+        $this->assertLoggerHasRecord(LogLevel::WARNING);
     }
 
     /**
@@ -173,7 +173,7 @@ final class Psr3ErrorHandlerTest extends TestCase
             ]
         );
 
-        $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
+        $this->assertLoggerHasRecord(LogLevel::ERROR);
     }
 
     /**
@@ -191,7 +191,7 @@ final class Psr3ErrorHandlerTest extends TestCase
             ]
         );
 
-        $this->assertTrue($this->logger->hasRecord('invalid'));
+        $this->assertLoggerHasRecord('invalid');
     }
 
     /**
@@ -208,7 +208,7 @@ final class Psr3ErrorHandlerTest extends TestCase
             ]
         );
 
-        $this->assertTrue($this->logger->hasRecord(LogLevel::ERROR));
+        $this->assertLoggerHasRecord(LogLevel::ERROR);
     }
 
     /**
@@ -219,7 +219,7 @@ final class Psr3ErrorHandlerTest extends TestCase
     {
         $this->errorHandler->handle($e);
 
-        $this->assertTrue($this->logger->hasRecord($type));
+        $this->assertLoggerHasRecord($type);
     }
 
     /**
@@ -230,16 +230,14 @@ final class Psr3ErrorHandlerTest extends TestCase
     {
         $this->errorHandler->handle($e);
 
-        $this->assertTrue(
-            $this->logger->hasRecord(
-                sprintf(
-                    '%s \'%s\' with message \'%s\' in %s(%s)',
-                    $type,
-                    get_class($e),
-                    $e->getMessage(),
-                    $e->getFile(),
-                    $e->getLine()
-                )
+        $this->assertLoggerHasRecord(
+            sprintf(
+                '%s \'%s\' with message \'%s\' in %s(%s)',
+                $type,
+                get_class($e),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
             )
         );
     }
@@ -272,5 +270,10 @@ final class Psr3ErrorHandlerTest extends TestCase
             protected $file = 'file';
             protected $line = 1;
         };
+    }
+
+    private function assertLoggerHasRecord(string $record): void
+    {
+        $this->assertTrue($this->logger->hasRecord($record));
     }
 }
