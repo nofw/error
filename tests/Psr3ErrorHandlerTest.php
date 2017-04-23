@@ -52,6 +52,27 @@ final class Psr3ErrorHandlerTest extends TestCase
     /**
      * @test
      */
+    public function it_ignores_the_level_map_order_when_there_is_an_exact_match(): void
+    {
+        $logger = $this->getTestLogger();
+
+        $levelMap = [
+            \Throwable::class => LogLevel::ERROR,
+            \Exception::class => LogLevel::CRITICAL,
+        ];
+
+        $errorHandler = new Psr3ErrorHandler($logger, $levelMap);
+
+        $e = new \Exception();
+
+        $errorHandler->handle($e);
+
+        $this->assertTrue($logger->hasRecord(LogLevel::CRITICAL));
+    }
+
+    /**
+     * @test
+     */
     public function it_detects_the_log_level_based_on_severity(): void
     {
         $logger = $this->getTestLogger();

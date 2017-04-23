@@ -87,6 +87,13 @@ final class Psr3ErrorHandler implements ErrorHandler
             return $context[Context::SEVERITY];
         }
 
+        // Find the log level based on the error in the level map (avoid looping through the whole array)
+        // Note: this ignores the order defined in the map.
+        $class = get_class($t);
+        if (isset($this->levelMap[$class])) {
+            return $this->levelMap[$class];
+        }
+
         // Find the log level based on the error in the level map
         foreach ($this->levelMap as $className => $candidate) {
             if ($t instanceof $className) {
