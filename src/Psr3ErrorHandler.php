@@ -4,39 +4,50 @@ declare(strict_types=1);
 
 namespace Nofw\Error;
 
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Psr\Log\NullLogger;
 
 /**
  * This handler can be used to log errors using a PSR-3 logger.
  *
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
  */
-final class Psr3ErrorHandler implements ErrorHandler, LoggerAwareInterface
+final class Psr3ErrorHandler implements ErrorHandler
 {
-    use LoggerAwareTrait;
+    /**
+     * Defines which error levels should be mapped to certain error types by default.
+     */
+    private const DEFAULT_ERROR_LEVEL_MAP = [
+        \ParseError::class => LogLevel::CRITICAL,
+        \Throwable::class => LogLevel::ERROR,
+    ];
 
     /**
-     * The log level to be used.
-     *
-     * @var string
+     * The key under which the error should be passed to the log context.
      */
-    private $level;
+    public const ERROR_KEY = 'error';
 
     /**
-     * Attach the error to the context or not.
-     *
-     * @var bool
+     * @var LoggerInterface
      */
-    private $attachError;
+    private $logger;
 
-    public function __construct(string $level = LogLevel::CRITICAL, bool $attachError = true)
+    /**
+     * Defines which error levels should be mapped to certain error types.
+     *
+     * Note: The errors are checked in order, so if you want to define fallbacks for classes higher in the tree
+     * make sure to add them to the end of the map.
+     *
+     * @var array
+     */
+    private $levelMap = [];
+
+    public function __construct(LoggerInterface $logger, array $levelMap = [])
     {
-        $this->level = $level;
-        $this->attachError = $attachError;
-        $this->logger = new NullLogger();
+        $this->logger = $logger;
+
+        // Keep user maintained order
+        $this->levelMap = array_replace($levelMap, self::DEFAULT_ERROR_LEVEL_MAP, $levelMap);
     }
 
     /**
@@ -44,24 +55,13 @@ final class Psr3ErrorHandler implements ErrorHandler, LoggerAwareInterface
      */
     public function handle(\Throwable $t, array $context = []): void
     {
-        if ($this->attachError) {
-            $context['throwable'] = $t;
-        }
-
-        // Determine the error type
-        if ($t instanceof \Exception) {
-            $type = 'Exception';
-        } elseif ($t instanceof \Error) {
-            $type = 'Error';
-        } else {
-            $type = 'Throwable';
-        }
+        $context[self::ERROR_KEY] = $t;
 
         $this->logger->log(
-            $this->level,
+            $this->getLevel($t),
             sprintf(
                 '%s \'%s\' with message \'%s\' in %s(%s)',
-                $type,
+                $this->getType($t),
                 get_class($t),
                 $t->getMessage(),
                 $t->getFile(),
@@ -69,5 +69,35 @@ final class Psr3ErrorHandler implements ErrorHandler, LoggerAwareInterface
             ),
             $context
         );
+    }
+
+    /**
+     * Determine the level for the error.
+     */
+    private function getLevel(\Throwable $t): string
+    {
+        $level = LogLevel::ERROR;
+        foreach ($this->levelMap as $className => $candidate) {
+            if ($t instanceof $className) {
+                $level = $candidate;
+                break;
+            }
+        }
+
+        return $level;
+    }
+
+    /**
+     * Determine the error type.
+     */
+    private function getType(\Throwable $t): string
+    {
+        if ($t instanceof \Exception) {
+            return 'Exception';
+        } elseif ($t instanceof \Error) {
+            return 'Error';
+        }
+
+        return 'Throwable';
     }
 }
