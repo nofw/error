@@ -1,6 +1,13 @@
 # Change Log
 
 
+## Unreleased
+
+### Changed
+
+- `rootDirectory` app key to `root_dir`
+
+
 ## 0.1.1 - 2017-04-23
 
 ### Added

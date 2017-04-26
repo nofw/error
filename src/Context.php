@@ -28,7 +28,7 @@ interface Context
      *  - version
      *  - environment (eg. staging, production)
      *  - url
-     *  - rootDirectory
+     *  - root_dir
      *  - component
      *  - action
      */
